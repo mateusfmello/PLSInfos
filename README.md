@@ -7,11 +7,11 @@ Esse script foi desenvolvido para listar hosts encontrados em uma determinada p�
 #### Versão atual: 1.0
 
 #### Modo de uso:
-* - Faça o download do script;
-* - Execute com o seguinte comando via terminal #python PLSInfo.py
+1. Faça o download do script;
+2. Execute com o seguinte comando via terminal #python PLSInfo.py
 
 #### Adicional:
-* - utilize -h ou --help para ajuda
+1. utilize -h ou --help para ajuda
 
 #### Testado em:
-- Ubuntu
+1. Ubuntu
