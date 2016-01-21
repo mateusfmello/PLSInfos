@@ -72,8 +72,8 @@ opcoes = {
 		'desc':'Salva o resultado completo da pesquisa.'}}
 
 def getHelp():
-	getCabecalho()
-	print(st('verde') + st('sublinhado') + 'Uso:' + st('reset') + ' python ' + sys.argv[0] + ' [OPÇÕES]')
+	getCabecalho(False)
+	print(st('verde') + st('sublinhado') + 'Uso:' + st('reset') + ' python ' + sys.argv[0] + ' <host> [OPÇÕES]')
 	print('\n-- Ex.: python ' + sys.argv[0] + ' <host> ou python ' + sys.argv[0] + ' --help')
 	print('\nOpções'.ljust(18) + 'Opções longas'.ljust(25) + 'Descrição'.ljust(100))
 	for opcao in opcoes:
@@ -81,7 +81,7 @@ def getHelp():
 		
 		try:
 			opcoes[opcao]['plus']
-		except:
+		except Exception, e:
 			text = text.ljust(15)
 		else:
 			text += opcoes[opcao]['plus']
@@ -91,7 +91,7 @@ def getHelp():
 		
 		try:
 			opcoes[opcao]['plus']
-		except:
+		except Exception, e:
 			text2 = text2.ljust(23)
 		else:
 			text2 += opcoes[opcao]['plus']
@@ -107,25 +107,29 @@ parametros = sys.argv
 verbose = False
 allInfo = False
 salvar = False
-global destinoFile
 destinoFile = '~/PLSInfos/'
 
 # PEGANDO HOST SEJA POR PARÂMETRO OU "INPUT"
 try:
-	if sys.argv[1] not in opcoes:
+	if not sys.argv[1].startswith('-'):
 		host = sys.argv[1]
 	else:
+		if sys.argv[1].startswith('-'):
+			getHelp()
 		host = raw_input('Por favor, insira o Host: ')
 		parametros = raw_input('Insira os parâmetros que deseja ou deixe em branco: ')
-except:
+		parametros.split(' ')
+except Exception, e:
 	host = raw_input('Por favor, insira o Host: ')
+	parametros = raw_input('Insira os parâmetros que deseja ou deixe em branco: ')
+	parametros.split(' ')
 
 def defSaveFile(exibeHelp, destinoFile, salvar, argMin,arg):
 	temPlus = False
 			
 	try:
 		opcoes[argMin]['plus']
-	except:
+	except Exception, e:
 		temPlus = False
 	else:
 		temPlus = True
@@ -193,14 +197,14 @@ try:
 	pg = urllib2.urlopen(hostProt)
 	if verbose:
 		print(st('verde') + '[ok]' + st('reset') + ' Página baixada')
-except: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
+except Exception, e: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
 	quit('\033[91m\033[1m\n\n\nPLSInfos :: Erro ao acessar a página \n\n\n \033[0m')
 
 try:
 	content = pg.read()
 	if verbose:
 		print(st('verde') + '[ok]' + st('reset') + ' Leitura da página foi feita\n')
-except: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
+except Exception, e: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
 	print(pg)
 	quit('\033[91m\033[1m\n\n\nPLSInfos :: Erro ao ler a página \n\n\n \033[0m')
 
