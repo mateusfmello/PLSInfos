@@ -11,12 +11,14 @@ try:
 	from subprocess import Popen, PIPE
 	from datetime import datetime
 except :
-	quit('\033[91m\033[1m\n\n\nPLSInfos :: Erro ao importar bibliotecas \n\n\n \033[0m')
+	quit(st('vermelho') + st('negrito') + '\n\n\nPLSInfos :: Erro ao importar bibliotecas \n\n\n ' + st('reset'))
 
+# FORMATADOR DE URL
 def getUrl(url, formatUrl):
 	uri = urlparse(url)
 	return formatUrl.format(uri=uri)
 
+# SETA O ESTILO DE UM DETERMINADO TEXTO
 def st(arg):
 
 	a = '\033['
@@ -56,6 +58,8 @@ def getCabecalho(clear = True):
 	return '##### Obrigado por usar o ' + st('negrito') + st('vermelho') + 'PLSInfos' + st('reset') + ' #####\n##### Versão: ' + st('azul') + st('negrito') + '1' + st('reset') + '\n##### Dia/Hora: ' + datetime.now().strftime('%d/%m/%Y %H:%M:%S') + '\n\n'
 
 print getCabecalho()
+
+# OPÇÕES QUE O SCRIPT ACEITA
 opcoes = {
 	'-v':{
 		'long': '--verbose',
@@ -71,11 +75,14 @@ opcoes = {
 		'long':'--save',
 		'desc':'Salva o resultado completo da pesquisa.'}}
 
+# MENU DE AJUDA
 def getHelp():
 	getCabecalho(False)
 	print(st('verde') + st('sublinhado') + 'Uso:' + st('reset') + ' python ' + sys.argv[0] + ' <host> [OPÇÕES]')
 	print('\n-- Ex.: python ' + sys.argv[0] + ' <host> ou python ' + sys.argv[0] + ' --help')
 	print('\nOpções'.ljust(18) + 'Opções longas'.ljust(25) + 'Descrição'.ljust(100))
+	
+	# LISTA O CONTEÚDO DO ARRAY OPCOES
 	for opcao in opcoes:
 		text = ' ' + opcao
 		
@@ -104,26 +111,30 @@ def getHelp():
 	quit()
 
 parametros = sys.argv
-verbose = False
-allInfo = False
-salvar = False
-destinoFile = '~/PLSInfos/'
+verbose = False # VARIÁVEL RESPOSÁVEL POR DETERMINAR SE SERÃO OU NÃO EXIBIDAS AS MENSAGENS INFORMATIVAS
+allInfo = False # VARIÁVEL RESPOSÁVEL POR DETERMINAR SE O USUÁRIO DEFINIU VIA PARÂMETRO QUE O SCRIPT DEVE EXIBIR TODAS AS INFORMAÇÕES ARRECADADAS
+salvar = False # VARIÁVEL RESPONSÁVEL POR DETERMINAR SE O USUÁRIO DEFINIU OU NÃO DEFINIU VIA PARÂMETRO SE O SCRIPT DEVE SALVAR EM UM DETERMINADO ARQUIVO TODAS INFORMAÇÕES EXIBIDAS NA PESQUISA
+destinoFile = '~/PLSInfos/' # LOCAL PADRÃO PARA SALVAR OS ARQUIVOS COM OS RESULTADOS
+conHosts = None
+conHosts3 = None
+conMails = None
 
 # PEGANDO HOST SEJA POR PARÂMETRO OU "INPUT"
 try:
-	if not sys.argv[1].startswith('-'):
+	if not sys.argv[1].startswith('-'): # VERIFICA SE O PRIMEIRO PARÂMETRO NÃO É UMA OPÇÃO AO EM VEZ DO HOST
 		host = sys.argv[1]
 	else:
-		if sys.argv[1].startswith('-'):
-			getHelp()
-		host = raw_input('Por favor, insira o Host: ')
-		parametros = raw_input('Insira os parâmetros que deseja ou deixe em branco: ')
-		parametros.split(' ')
+		if sys.argv[1].startswith('-'): # CASO O PRIMEIRO PARÂMETRO SEJA UMA OPÇÃO
+			getHelp() # EXIBINDO O MENU DE AJUDA POIS O USUÁRIO ESTA UTILIZANDO O SCRIPT DE FORMA ERRADA
+		host = raw_input('Por favor, insira o Host: ') # COMO O USUÁRIO NÃO INFORMOU NENHUM PARÂMETRO O SCRIPT SOLICITA O HOST
+		parametros = raw_input('Insira os parâmetros que deseja ou deixe em branco: ') # COMO O USUÁRIO NÃO INFORMOU NENHUM PARÂMETRO CORRETO O SCRIPT SOLICITA AS OPÇÕES
+		parametros = parametros.split(' ') # SEPARANDO OPÇÕES
 except Exception, e:
 	host = raw_input('Por favor, insira o Host: ')
 	parametros = raw_input('Insira os parâmetros que deseja ou deixe em branco: ')
-	parametros.split(' ')
+	parametros = parametros.split(' ')
 
+# PEGA O LOCAL ONDE O RESULTADO SERÁ SALVO, ESSE VALOR VEM VIA PARÂMETRO (OPÇÕES)
 def defSaveFile(exibeHelp, destinoFile, salvar, argMin,arg):
 	temPlus = False
 			
@@ -154,6 +165,7 @@ def defSaveFile(exibeHelp, destinoFile, salvar, argMin,arg):
 			salvar = True
 	return {'exibeHelp':exibeHelp, 'destinoFile':destinoFile, 'salvar':salvar}
 
+# TRATANDO AS OPÇÕES
 for i,arg in enumerate(parametros):
 	exibeHelp = True
 	if (i>1) and (arg not in opcoes):
@@ -190,23 +202,23 @@ else:
 if verbose:
 	print(st('azul') + '[i]' + st('reset') + ' Acessando o host ' + st('sublinhado') + hostProt + st('reset')) # MENSAGEM PARA NÃO DEIXAR O USUÁRIO PERDIDO CASO A CONEXÃO E RESPOSTA DO HOST DEMORE
 else:
-	print('Aguarde processando...') # MENSAGEM PARA NÃO DEIXAR O USUÁRIO PERDIDO CASO A CONEXÃO E RESPOSTA DO HOST DEMORE
+	print(st('azul') + '[i]' + st('reset') + ' Aguarde processando...') # MENSAGEM PARA NÃO DEIXAR O USUÁRIO PERDIDO CASO A CONEXÃO E RESPOSTA DO HOST DEMORE
 
 # PEGANDO PÁGINA E FAZENDO A LEITURA DA MESMA, ESSA LEITURA É INSERIDA EM UMA VARIÁVEL
 try:
-	pg = urllib2.urlopen(hostProt)
+	pg = urllib2.urlopen(hostProt) # PEGANDO PÁGINA
 	if verbose:
 		print(st('verde') + '[ok]' + st('reset') + ' Página baixada')
 except Exception, e: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
-	quit('\033[91m\033[1m\n\n\nPLSInfos :: Erro ao acessar a página \n\n\n \033[0m')
+	quit(st('vermelho') + st('negrito') + '\n\n\nPLSInfos :: Erro ao acessar a página \n\n\n ' + st('reset'))
 
 try:
-	content = pg.read()
+	content = pg.read() # LENDO CONTEÚDO DA PÁGINA
 	if verbose:
 		print(st('verde') + '[ok]' + st('reset') + ' Leitura da página foi feita\n')
 except Exception, e: # CASO OCORRA ERROS É EXIBIDO UMA MENSAGEM AO USUÁRIO E O SCRIPT É FINALIZADO
 	print(pg)
-	quit('\033[91m\033[1m\n\n\nPLSInfos :: Erro ao ler a página \n\n\n \033[0m')
+	quit(st('vermelho') + st('negrito') + '\n\n\nPLSInfos :: Erro ao ler a página \n\n\n ' + st('reset'))
 
 conteudoPorLink = re.split(r'<a ', content) # DIVIDINDO PARTES DOS LINKS
 
@@ -225,6 +237,7 @@ if len(hostSemWww) > 1:
 else:
 	hostSemWww = hostSemWww[0]
 
+# FUNÇÃO PARA PEGAR DADOS DO HOST
 def getHost(host):
 	if verbose:
 		print(st('azul') + '[i]' + st('reset') + ' Pegando dados do host ' + st('sublinhado') + host + st('reset'))
@@ -239,6 +252,7 @@ def getHost(host):
 		print(st('verde') + '[ok]' + st('reset') + ' Dados do host ' + st('sublinhado') + host + st('reset') + ' recebidos\n')
 	return retorno
 
+# TRATANDO INFORMAÇÕES DO HOST
 def getInfos(url):
 	dadosHost = getHost(url)
 	dados = {}
@@ -317,6 +331,7 @@ def preExibeInfos(hosts):
 		text += '\n'
 	return text
 
+# EXIBINDO OU NÃO, HOST ENCONTRADOS NA PÁGINA
 if len(hosts) > 0:
 	conHosts = st('azul') + '\n:::::::::: Hosts baseados em ' + st('sublinhado') + hostSemWww + st('reset') + st('azul') + ' ::::::::::' + st('reset')
 	conHosts += preExibeInfos(hosts)
@@ -325,6 +340,7 @@ else:
 	conHosts = st('vermelho') + 'Nessa página não existem outros hosts baseados em ' + st('sublinhado') + st('negrito') + hostSemWww + st('reset') + st('vermelho') + st('reset')
 	print(conHosts)
 
+# PEGANDO INFORMAÇÕES DE HOSTS DE TERCEIROS ENCONTRADOS NA PÁGINA DO HOST INFORMADO AO SCRIPT
 def infosHosts3(hosts3):
 	msg = ''
 	if len(hosts3) > 0:
@@ -349,6 +365,7 @@ if exibe:
 	print conHosts3
 	hosts3Tmp.clear()
 
+# EXIBE E-MAILS
 def exibeMails():
 	msg = ''
 	if len(mails) > 0:
@@ -374,6 +391,7 @@ if exibe:
 if salvar == False:
 	salvar = (True if raw_input('Você deseja salvar essas informações? [s/n] ').lower() == 's' else False)
 
+# RODAPÉ
 footer = '\nPesquisa finalizada!!! \n\nDesevolvedor: Mateus Fernandes de Mello \nWebsite: mfmello.com \nGithub: https://github.com/mateusfmello/PLSInfos \n\n' + st('verde') + st('negrito') + 'Finalizando execução.\n' + st('vermelho') + 'PLSInfos\n\n' + st('reset')
 
 if salvar:
@@ -413,10 +431,17 @@ if salvar:
 	try:
 		arquivo = open(caminhoNome, 'w')
 		arquivo.write(getCabecalho(False))
-		arquivo.write(conHosts + '\n')
-		arquivo.write(conHosts3)
-		arquivo.write(conMails)
-		arquivo.write(footer)
+		
+		if conHosts != None:
+			arquivo.write(conHosts)
+		
+		if conHosts3 != None:
+			arquivo.write(conHosts3)
+		
+		if conMails != None:
+			arquivo.write('\n' + conMails)
+		
+		arquivo.write('\n' + footer)
 		arquivo.close()
 	except Exception, e:
 		print(st('vermelho') + st('negrito') + '[!]' + st('reset') + ' Erro ao criar arquivo')
@@ -426,10 +451,5 @@ if salvar:
 
 print(footer)
 
-
-#pegar argumento
-
-#baixar página
-
-#verificar ocorrencias de href="
-
+if salvar:
+	quit('CTRL+C and CTRL+V:  cat ' + caminhoNome + '\n')
